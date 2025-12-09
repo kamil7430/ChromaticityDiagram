@@ -18,8 +18,14 @@
     </Design.DataContext>
 
     <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,*">
+        
+        
         <scottPlot:AvaPlot Grid.Column="0" 
                            Grid.Row="1"
                            Name="BezierDiagram"/>
+        
+        <scottPlot:AvaPlot Grid.Column="1"
+                           Grid.Row="1"
+                           Name="ChromaticityDiagram"/>
     </Grid>
 </Window>

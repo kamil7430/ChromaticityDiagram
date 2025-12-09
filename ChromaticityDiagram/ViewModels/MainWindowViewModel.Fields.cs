@@ -1,9 +1,12 @@
 using System.Collections.ObjectModel;
-using Avalonia;
+using ChromaticityDiagram.Models;
+using ScottPlot;
 
 namespace ChromaticityDiagram.ViewModels;
 
 public partial class MainWindowViewModel
 {
-    public ObservableCollection<Point> BezierCurveControlPoints { get; } = [];
+    public ColorMatching ColorMatching { get; } = new();
+
+    public ObservableCollection<Coordinates> BezierCurveControlPoints { get; } = [];
 }
