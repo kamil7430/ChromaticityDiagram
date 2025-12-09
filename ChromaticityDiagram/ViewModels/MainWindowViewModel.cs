@@ -8,5 +8,9 @@ namespace ChromaticityDiagram.ViewModels;
 public partial class MainWindowViewModel : ViewModelBase
 {
     public IEnumerable<(Coordinates coordinates, Color color)> GetChromaticityDiagramEdgePoints()
-        => ColorMatching.WaveLengthsToXYZ.Values.Select(vec => (new Coordinates(vec.X, vec.Y), vec.XYZToColor()));
+        => ColorMatching.WaveLengthsToXYZ.Values.Select(vec =>
+            (
+                new Coordinates(vec.X / (vec.X + vec.Y + vec.Z), vec.Y / (vec.X + vec.Y + vec.Z)),
+                vec.XYZToColor()
+            ));
 }

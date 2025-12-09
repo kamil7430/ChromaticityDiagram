@@ -10,6 +10,8 @@ namespace ChromaticityDiagram.Views;
 
 public partial class MainWindow : Window
 {
+    private const float POINT_SIZE = 5f;
+    
     private readonly MainWindowViewModel _viewModel;
     
     private readonly AvaPlot _bezierPlot;
@@ -36,7 +38,7 @@ public partial class MainWindow : Window
 
         _chromaticityPlot = this.Find<AvaPlot>("ChromaticityDiagram")!;
         foreach (var (coordinates, color) in _viewModel.GetChromaticityDiagramEdgePoints())
-            _chromaticityPlot.Plot.Add.Marker(coordinates, color: color);
+            _chromaticityPlot.Plot.Add.Marker(coordinates, size: POINT_SIZE, color: color);
         _chromaticityPlot.Plot.Axes.SetLimits(0, 1, 0, 1);
         _chromaticityPlot.Interaction.Disable();
         _chromaticityPlot.Refresh();
