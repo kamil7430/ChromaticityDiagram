@@ -1,4 +1,5 @@
 using System;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using ChromaticityDiagram.Models.Helpers;
@@ -87,14 +88,9 @@ public partial class MainWindow : Window
     {
         if (_draggedPointIndex == -1)
         {
-            var coordinates = e.GetPosition(_bezierPlot).ToCoordinates();
-
-            var limits = _bezierPlot.Plot.Axes.GetLimits().Rect;
-            var bounds = _bezierPlot.Bounds;
-            coordinates.Y = (bounds.Height - coordinates.Y) * limits.Top / bounds.Height;
-            coordinates.X = coordinates.X * (limits.Right - limits.Left) / bounds.Width + limits.Left;
-            
-            AddControlPoint(coordinates);
+            var coordinates = MousePointToPlotCoordinates(e.GetPosition(_bezierPlot), _bezierPlot);
+            if (coordinates.HasValue)
+                AddControlPoint(coordinates.Value);
         }
         else
         {
@@ -102,6 +98,18 @@ public partial class MainWindow : Window
         }
     }
 
+    private Coordinates? MousePointToPlotCoordinates(Point mousePoint, AvaPlot plot)
+    {
+        var coordinates = plot.Plot.GetCoordinates((float)mousePoint.X, (float)mousePoint.Y);
+
+        var limits = plot.Plot.Axes.GetLimits().Rect;
+        if (coordinates.X < limits.Left || coordinates.X > limits.Right || coordinates.Y < limits.Bottom ||
+            coordinates.Y > limits.Top)
+            return null;
+        
+        return coordinates;
+    }
+    
     private void AddControlPoint(Coordinates coordinates)
     {
         const float controlPointSize = 10f;
