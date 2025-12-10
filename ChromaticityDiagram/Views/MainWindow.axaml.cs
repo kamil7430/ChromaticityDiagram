@@ -2,11 +2,9 @@ using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using ChromaticityDiagram.Models.Helpers;
 using ChromaticityDiagram.ViewModels;
 using ScottPlot;
 using ScottPlot.Avalonia;
-using ScottPlot.Plottables;
 
 namespace ChromaticityDiagram.Views;
 
@@ -30,11 +28,11 @@ public partial class MainWindow : Window
     {
         var plot = this.Find<AvaPlot>("BezierDiagram")!;
         
-        plot.Interaction.Disable();
         plot.PointerPressed += OnBezierPlotPointerPressed;
         plot.PointerMoved += OnBezierPlotPointerMoved;
         plot.PointerReleased += OnBezierPlotPointerReleased;
         plot.Plot.Axes.SetLimits(380, 780, 0, 2);
+        plot.Interaction.Disable();
         
         plot.Refresh();
 
@@ -76,12 +74,36 @@ public partial class MainWindow : Window
     
     private void OnBezierPlotPointerPressed(object? sender, PointerPressedEventArgs e)
     {
+        const float catchRadius = 7f;
         
+        var clickCoordinates = MousePointToPlotCoordinates(e.GetPosition(_bezierPlot), _bezierPlot);
+        if (!clickCoordinates.HasValue)
+            return;
+
+        for (int i = 0; i < _viewModel.BezierCurveControlPoints.Count; i++)
+        {
+            var coords = _viewModel.BezierCurveControlPoints[i];
+
+            if (Math.Abs(clickCoordinates.Value.X - coords.X) < catchRadius &&
+                Math.Abs(clickCoordinates.Value.Y - coords.Y) < catchRadius)
+            {
+                _draggedPointIndex = i;
+                return;
+            }
+        }
     }
 
     private void OnBezierPlotPointerMoved(object? sender, PointerEventArgs e)
     {
+        if (_draggedPointIndex == -1)
+            return;
         
+        var coordinates = MousePointToPlotCoordinates(e.GetPosition(_bezierPlot), _bezierPlot);
+        if (!coordinates.HasValue)
+            return;
+
+        _viewModel.BezierCurveControlPoints[_draggedPointIndex] = coordinates.Value;
+        RenderBezierPlot();
     }
 
     private void OnBezierPlotPointerReleased(object? sender, PointerReleasedEventArgs e)
@@ -90,12 +112,12 @@ public partial class MainWindow : Window
         {
             var coordinates = MousePointToPlotCoordinates(e.GetPosition(_bezierPlot), _bezierPlot);
             if (coordinates.HasValue)
-                AddControlPoint(coordinates.Value);
+                _viewModel.BezierCurveControlPoints.Add(coordinates.Value);
         }
         else
-        {
-            
-        }
+            _draggedPointIndex = -1;
+        
+        RenderBezierPlot();
     }
 
     private Coordinates? MousePointToPlotCoordinates(Point mousePoint, AvaPlot plot)
@@ -109,16 +131,17 @@ public partial class MainWindow : Window
         
         return coordinates;
     }
-    
-    private void AddControlPoint(Coordinates coordinates)
+
+    private void RenderBezierPlot()
     {
         const float controlPointSize = 10f;
         var controlPointColor = Colors.Black;
+
+        _bezierPlot.Plot.Clear();
         
-        _viewModel.BezierCurveControlPoints.Add(coordinates);
-        _bezierPlot.Plot.Add.Marker(coordinates, size: controlPointSize, color: controlPointColor);
+        foreach (var coordinates in _viewModel.BezierCurveControlPoints)
+            _bezierPlot.Plot.Add.Marker(coordinates, size: controlPointSize, color: controlPointColor);
         
-        // TODO: obliczyć krzywą
         _bezierPlot.Refresh();
     }
 }
