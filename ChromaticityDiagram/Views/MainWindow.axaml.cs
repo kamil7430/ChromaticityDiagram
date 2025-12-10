@@ -46,16 +46,29 @@ public partial class MainWindow : Window
     
     private AvaPlot InitializeChromaticityDiagram()
     {
-        const float pointSize = 5f;
+        const float colorPointSize = 5f;
+        const float gamutPointSize = 10f;
+        var gamutColor = Colors.Black;
         
         var plot = this.Find<AvaPlot>("ChromaticityDiagram")!;
         
+        // Background
         plot.Plot.Add.ImageRect(
             _viewModel.CIEXYZDiagramBackground,
             new CoordinateRect(0, 0.8, 0, 0.9)
         );
+        
+        // Wave length points
         foreach (var (coordinates, color) in _viewModel.GetChromaticityDiagramEdgePoints())
-            plot.Plot.Add.Marker(coordinates, size: pointSize, color: color);
+            plot.Plot.Add.Marker(coordinates, size: colorPointSize, color: color);
+        
+        // sRGB gamut
+        var vertices = MainWindowViewModel.SRGBGamut;
+        var polygon = plot.Plot.Add.Polygon(vertices);
+        polygon.FillColor = Colors.Transparent;
+        polygon.LineColor = gamutColor;
+        foreach (var v in vertices)
+            plot.Plot.Add.Marker(v, size: gamutPointSize, color: gamutColor);
         
         plot.Plot.Axes.SetLimits(0, 1, 0, 1);
         plot.Interaction.Disable();
