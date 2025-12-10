@@ -1,5 +1,6 @@
-- [ ] Narysować "kolorowy" brzeg podkowy - x,y dla pojedynczych długości fal
-- [ ] Jako tło podkowy proszę spróbować wpasować "pobrany z www" rysunek podkowy
-- [ ] Umożliwić rysowanie dowolnego rozkładu widmowego (krzywa beziera dowolnego stopnia) i dla niego wyznaczać i pokazywać (dynamicznie) na wykresie (podkowie) współrzędne chromatyczne x,y
-- [ ] Narysować granice (gamut) dla profilu sRGB
+- [x] Narysować "kolorowy" brzeg podkowy - x,y dla pojedynczych długości fal
+- [x] Jako tło podkowy proszę spróbować wpasować "pobrany z www" rysunek podkowy
+- [ ] Umożliwić rysowanie dowolnego rozkładu widmowego (krzywa beziera dowolnego stopnia)
+- [ ] dla niego wyznaczać i pokazywać (dynamicznie) na wykresie (podkowie) współrzędne chromatyczne x,y
+- [x] Narysować granice (gamut) dla profilu sRGB
 - [ ] Narysować prostokat w kolorze odpowiadającym widmu (maksymalna jasność) w profilu sRGB
