@@ -1,20 +1,15 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Platform;
 using ChromaticityDiagram.ViewModels;
 using ScottPlot;
 using ScottPlot.Avalonia;
 using ScottPlot.Plottables;
-using SkiaSharp;
-using Image = ScottPlot.Image;
 
 namespace ChromaticityDiagram.Views;
 
 public partial class MainWindow : Window
 {
-    private const float POINT_SIZE = 5f;
-    
     private readonly MainWindowViewModel _viewModel;
     
     private readonly AvaPlot _bezierPlot;
@@ -25,34 +20,48 @@ public partial class MainWindow : Window
     public MainWindow(MainWindowViewModel viewModel)
     {
         InitializeComponent();
-        
         _viewModel = viewModel;
+        _bezierPlot = InitializeBezierPlot();
+        _chromaticityPlot = InitializeChromaticityDiagram();
+    }
 
-        _bezierPlot = this.Find<AvaPlot>("BezierDiagram")!;
+    private AvaPlot InitializeBezierPlot()
+    {
+        var plot = this.Find<AvaPlot>("BezierDiagram")!;
         
-        _bezierScatter = _bezierPlot.Plot.Add.Scatter(Array.Empty<Coordinates>());
+        _bezierScatter = plot.Plot.Add.Scatter(Array.Empty<Coordinates>());
         _bezierScatter.LineWidth = 2;
         _bezierScatter.MarkerSize = 15;
         
-        _bezierPlot.Plot.Axes.SetLimits(380, 780, 0, 2);
+        plot.Plot.Axes.SetLimits(380, 780, 0, 2);
+        plot.Interaction.Disable();
+        plot.PointerPressed += OnBezierPlotPointerPressed;
+        plot.PointerMoved += OnBezierPlotPointerMoved;
+        plot.PointerReleased += OnBezierPlotPointerReleased;
         
-        _bezierPlot.Interaction.Disable();
-        _bezierPlot.PointerPressed += OnBezierPlotPointerPressed;
-        _bezierPlot.PointerMoved += OnBezierPlotPointerMoved;
-        _bezierPlot.PointerReleased += OnBezierPlotPointerReleased;
+        plot.Refresh();
+
+        return plot;
+    }
+    
+    private AvaPlot InitializeChromaticityDiagram()
+    {
+        const float pointSize = 5f;
         
-        _bezierPlot.Refresh();
+        var plot = this.Find<AvaPlot>("ChromaticityDiagram")!;
         
-        _chromaticityPlot = this.Find<AvaPlot>("ChromaticityDiagram")!;
-        _chromaticityPlot.Plot.Add.ImageRect(
+        plot.Plot.Add.ImageRect(
             _viewModel.CIEXYZDiagramBackground,
             new CoordinateRect(0, 0.8, 0, 0.9)
         );
         foreach (var (coordinates, color) in _viewModel.GetChromaticityDiagramEdgePoints())
-            _chromaticityPlot.Plot.Add.Marker(coordinates, size: POINT_SIZE, color: color);
-        _chromaticityPlot.Plot.Axes.SetLimits(0, 1, 0, 1);
-        _chromaticityPlot.Interaction.Disable();
-        _chromaticityPlot.Refresh();
+            plot.Plot.Add.Marker(coordinates, size: pointSize, color: color);
+        
+        plot.Plot.Axes.SetLimits(0, 1, 0, 1);
+        plot.Interaction.Disable();
+        plot.Refresh();
+        
+        return plot;
     }
     
     private void OnBezierPlotPointerPressed(object? sender, PointerPressedEventArgs e)
