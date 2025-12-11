@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Specialized;
 using Avalonia.Platform;
-using ChromaticityDiagram.Models.Helpers;
 using ScottPlot;
 using SkiaSharp;
 
@@ -10,17 +8,17 @@ namespace ChromaticityDiagram.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
+    public event EventHandler? BezierPlotChanged;
+    
     public MainWindowViewModel()
     {
+        BezierCurveControlPoints.CollectionChanged += BezierCurveControlPoints_OnCollectionChanged;
+        
         var uri = new Uri("avares://ChromaticityDiagram/Assets/chromaticity-diagram.png");
         using var stream = AssetLoader.Open(uri);
         CIEXYZDiagramBackground = new Image(SKBitmap.Decode(stream));
     }
-    
-    public IEnumerable<(Coordinates coordinates, Color color)> GetChromaticityDiagramEdgePoints()
-        => ColorMatching.WaveLengthsToXYZ.Values.Select(vec =>
-            (
-                new Coordinates(vec.X / (vec.X + vec.Y + vec.Z), vec.Y / (vec.X + vec.Y + vec.Z)),
-                vec.XYZToColor()
-            ));
+
+    private void BezierCurveControlPoints_OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        => NotifyCanExecute();
 }

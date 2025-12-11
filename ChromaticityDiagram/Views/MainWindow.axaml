@@ -18,7 +18,17 @@
     </Design.DataContext>
 
     <Grid ColumnDefinitions="*,*" RowDefinitions="100,*">
-        
+        <StackPanel Grid.Column="0"
+                    Grid.Row="0"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+            <TextBlock Text="{Binding BezierCurveControlPoints.Count, StringFormat='Control points count: {0}'}"
+                       HorizontalAlignment="Center"/>
+            
+            <Button Content="Remove last control point"
+                    Command="{Binding RemoveLastControlPointCommand}"
+                    Margin="0, 10, 0, 0"/>
+        </StackPanel>
         
         <scottPlot:AvaPlot Grid.Column="0" 
                            Grid.Row="1"

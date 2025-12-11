@@ -19,10 +19,14 @@ public partial class MainWindow : Window
     public MainWindow(MainWindowViewModel viewModel)
     {
         InitializeComponent();
-        _viewModel = viewModel;
+        DataContext = _viewModel = viewModel;
         _bezierPlot = InitializeBezierPlot();
         _chromaticityPlot = InitializeChromaticityDiagram();
+        _viewModel.BezierPlotChanged += ViewModel_OnBezierPlotChanged;
     }
+
+    private void ViewModel_OnBezierPlotChanged(object? sender, EventArgs e)
+        => RenderBezierPlot();
 
     private AvaPlot InitializeBezierPlot()
     {
