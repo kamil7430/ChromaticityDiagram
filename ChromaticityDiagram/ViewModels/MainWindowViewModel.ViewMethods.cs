@@ -16,5 +16,5 @@ public partial class MainWindowViewModel
         (
             new Coordinates(vec.X / (vec.X + vec.Y + vec.Z), vec.Y / (vec.X + vec.Y + vec.Z)),
             vec.XYZToColor()
-        ));
+        )).Where(t => t.Item2 != Colors.Black);
 }
