@@ -136,11 +136,17 @@ public partial class MainWindow : Window
     {
         const float controlPointSize = 10f;
         var controlPointColor = Colors.Black;
+        var curveColor = Colors.Black;
 
         _bezierPlot.Plot.Clear();
         
+        // Control points
         foreach (var coordinates in _viewModel.BezierCurveControlPoints)
             _bezierPlot.Plot.Add.Marker(coordinates, size: controlPointSize, color: controlPointColor);
+        
+        // Curve
+        var (xs, ys) = _viewModel.GetBezierCurve();
+        _bezierPlot.Plot.Add.ScatterLine(xs, ys, curveColor);
         
         _bezierPlot.Refresh();
     }
