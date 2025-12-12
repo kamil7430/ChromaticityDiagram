@@ -26,7 +26,7 @@ public partial class MainWindow : Window
     }
 
     private void ViewModel_OnBezierPlotChanged(object? sender, EventArgs e)
-        => RenderBezierPlot();
+        => RenderPlots();
 
     private AvaPlot InitializeBezierPlot()
     {
@@ -107,7 +107,7 @@ public partial class MainWindow : Window
             return;
 
         _viewModel.BezierCurveControlPoints[_draggedPointIndex] = coordinates.Value;
-        RenderBezierPlot();
+        RenderPlots();
     }
 
     private void OnBezierPlotPointerReleased(object? sender, PointerReleasedEventArgs e)
@@ -121,7 +121,7 @@ public partial class MainWindow : Window
         else
             _draggedPointIndex = -1;
         
-        RenderBezierPlot();
+        RenderPlots();
     }
 
     private Coordinates? MousePointToPlotCoordinates(Point mousePoint, AvaPlot plot)
@@ -136,7 +136,18 @@ public partial class MainWindow : Window
         return coordinates;
     }
 
-    private void RenderBezierPlot()
+    private void RenderPlots()
+    {
+        var (xs, ys) = _viewModel.GetBezierCurve();
+        RenderBezierPlot(xs, ys);
+        UpdateColorPointOnChromaticityDiagram(xs, ys);
+        UpdateColorPreview(xs, ys);
+        
+        _bezierPlot.Refresh();
+        _chromaticityPlot.Refresh();
+    }
+    
+    private void RenderBezierPlot(double[] xs, double[] ys)
     {
         const float controlPointSize = 10f;
         var controlPointColor = Colors.Black;
@@ -149,9 +160,16 @@ public partial class MainWindow : Window
             _bezierPlot.Plot.Add.Marker(coordinates, size: controlPointSize, color: controlPointColor);
         
         // Curve
-        var (xs, ys) = _viewModel.GetBezierCurve();
         _bezierPlot.Plot.Add.ScatterLine(xs, ys, curveColor);
+    }
+
+    private void UpdateColorPointOnChromaticityDiagram(double[] xs, double[] ys)
+    {
         
-        _bezierPlot.Refresh();
+    }
+
+    private void UpdateColorPreview(double[] xs, double[] ys)
+    {
+        
     }
 }
