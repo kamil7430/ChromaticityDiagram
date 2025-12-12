@@ -4,9 +4,11 @@ using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using ChromaticityDiagram.Models.Helpers;
 using ChromaticityDiagram.ViewModels;
 using ScottPlot;
 using ScottPlot.Avalonia;
+using ScottPlot.Plottables;
 
 namespace ChromaticityDiagram.Views;
 
@@ -16,6 +18,7 @@ public partial class MainWindow : Window
     
     private readonly AvaPlot _bezierPlot;
     private readonly AvaPlot _chromaticityPlot;
+    private readonly Marker _colorPointOnChromaticityDiagram;
     private int _draggedPointIndex = -1;
     
     public MainWindow(MainWindowViewModel viewModel)
@@ -23,7 +26,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContext = _viewModel = viewModel;
         _bezierPlot = InitializeBezierPlot();
-        _chromaticityPlot = InitializeChromaticityDiagram();
+        (_chromaticityPlot, _colorPointOnChromaticityDiagram) = InitializeChromaticityDiagram();
         _viewModel.PropertyChanged += ViewModel_OnPropertyChanged;
     }
 
@@ -45,11 +48,13 @@ public partial class MainWindow : Window
         return plot;
     }
     
-    private AvaPlot InitializeChromaticityDiagram()
+    private (AvaPlot, Marker) InitializeChromaticityDiagram()
     {
-        const float colorPointSize = 5f;
+        const float wavePointSize = 5f;
         const float gamutPointSize = 10f;
-        var gamutColor = Colors.Black;
+        const float colorPointSize = 10f;
+        var gamutColor = Colors.Gray;
+        var colorPointColor = Colors.Black;
         
         var plot = this.Find<AvaPlot>("ChromaticityDiagram")!;
         
@@ -61,7 +66,7 @@ public partial class MainWindow : Window
         
         // Wave length points
         foreach (var (coordinates, color) in _viewModel.GetChromaticityDiagramEdgePoints())
-            plot.Plot.Add.Marker(coordinates, size: colorPointSize, color: color);
+            plot.Plot.Add.Marker(coordinates, size: wavePointSize, color: color);
         
         // sRGB gamut
         var vertices = MainWindowViewModel.SRGBGamut;
@@ -71,12 +76,19 @@ public partial class MainWindow : Window
         foreach (var v in vertices)
             plot.Plot.Add.Marker(v, size: gamutPointSize, color: gamutColor);
         
+        // Color point
+        var colorPoint = plot.Plot.Add.Marker(GamutHelper.WhitePoint, size: colorPointSize, color: colorPointColor);
+        colorPoint.LegendText = CreatePointDescription(GamutHelper.WhitePoint);
+        
         plot.Plot.Axes.SetLimits(0, 1, 0, 1);
         plot.Interaction.Disable();
         plot.Refresh();
         
-        return plot;
+        return (plot, colorPoint);
     }
+
+    private string CreatePointDescription(Coordinates coordinates)
+        => $"Chosen color: x = {coordinates.X:F4}, y = {coordinates.Y:F4}";
     
     private void OnBezierPlotPointerPressed(object? sender, PointerPressedEventArgs e)
     {
@@ -145,8 +157,8 @@ public partial class MainWindow : Window
         RenderBezierPlot(xs, ys);
         PaintAreaUnderBezierCurve(bezierValues);
         UpdateColorPointOnChromaticityDiagram(bezierValues);
-        UpdateColorPreview(bezierValues);
         
+        ColorPreviewPanel.InvalidateVisual();
         _bezierPlot.Refresh();
         _chromaticityPlot.Refresh();
     }
@@ -175,14 +187,13 @@ public partial class MainWindow : Window
         foreach (var (x, y) in bezierValues)
             _bezierPlot.Plot.Add.Line(x, 0, x, y);
     }
-    
+
     private void UpdateColorPointOnChromaticityDiagram(IDictionary<int, double> bezierValues)
     {
+        (ColorPreviewPanel.Background, var coordinates) =
+            _viewModel.CalculatePointOnChromaticityDiagramAndGetColorPreview(bezierValues);
         
-    }
-
-    private void UpdateColorPreview(IDictionary<int, double> bezierValues)
-    {
-        
+        _colorPointOnChromaticityDiagram.Location = coordinates;
+        _colorPointOnChromaticityDiagram.LegendText = CreatePointDescription(coordinates);
     }
 }

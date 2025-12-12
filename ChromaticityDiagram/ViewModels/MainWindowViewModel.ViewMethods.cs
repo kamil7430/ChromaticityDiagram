@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Avalonia;
+using Avalonia.Media;
 using ChromaticityDiagram.Models.Algorithms;
 using ChromaticityDiagram.Models.Helpers;
 using ScottPlot;
+using Color = ScottPlot.Color;
+using Colors = ScottPlot.Colors;
 
 namespace ChromaticityDiagram.ViewModels;
 
@@ -15,8 +19,8 @@ public partial class MainWindowViewModel
     public IEnumerable<(Coordinates coordinates, Color color)> GetChromaticityDiagramEdgePoints()
         => ColorMatching.WaveLengthsToXYZ.Values.Select(vec =>
         (
-            new Coordinates(vec.X / (vec.X + vec.Y + vec.Z), vec.Y / (vec.X + vec.Y + vec.Z)),
-            vec.XYZToColor()
+            vec.XYZToxy(),
+            Color.FromARGB(vec.XYZToColorUint())
         )).Where(t => t.Item2 != Colors.Black);
 
     public IDictionary<int, double> GetBezierValues(double[] xs, double[] ys)
@@ -53,5 +57,24 @@ public partial class MainWindowViewModel
         }
         
         return values;
+    }
+
+    public (IBrush, Coordinates) CalculatePointOnChromaticityDiagramAndGetColorPreview(IDictionary<int, double> bezierValues)
+    {
+        if (bezierValues.Count < 2)
+            return (new SolidColorBrush(Avalonia.Media.Colors.White), GamutHelper.WhitePoint);
+        
+        double sumX = 0, sumY = 0, sumZ = 0;
+        
+        foreach (var (x, y) in bezierValues)
+        {
+            sumX += y * ColorMatching.WaveLengthsToXYZ[x].X;
+            sumY += y * ColorMatching.WaveLengthsToXYZ[x].Y;
+            sumZ += y * ColorMatching.WaveLengthsToXYZ[x].Z;
+        }
+
+        var vector = new Vector3D(sumX, sumY, sumZ);
+
+        return (new SolidColorBrush(vector.XYZToColorUint()), vector.XYZTosRGBxy());
     }
 }

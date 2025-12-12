@@ -43,8 +43,19 @@
         <StackPanel Grid.Column="1"
                     Grid.Row="0"
                     VerticalAlignment="Center"
-                    HorizontalAlignment="Center">
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal">
+            <TextBlock Text="Color preview:"
+                       Margin="0,0, 10, 0"
+                       VerticalAlignment="Center"/>
             
+            <Border BorderBrush="Black"
+                    BorderThickness="1"
+                    CornerRadius="3">
+                <Panel Width="50"
+                       Height="30"
+                       Name="ColorPreviewPanel"/>
+            </Border>
         </StackPanel>
         
         <scottPlot:AvaPlot Grid.Column="0" 
