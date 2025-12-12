@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ChromaticityDiagram.Models.Algorithms;
 using ChromaticityDiagram.Models.Helpers;
@@ -20,9 +21,9 @@ public partial class MainWindowViewModel
 
     public IDictionary<int, double> GetBezierValues(double[] xs, double[] ys)
     {
-        var xMin = xs.Min();
-        var xMax = xs.Max();
-
+        if (xs.Length != ys.Length)
+            throw new ArgumentException("Arrays xs and ys must have the same length!");
+        
         Dictionary<int, double> values = [];
 
         for (int i = 0; i < xs.Length - 1; i++)
@@ -32,7 +33,6 @@ public partial class MainWindowViewModel
             var yStart = ys[i];
             var yEnd = ys[i + 1];
 
-            // Jeżeli rozważany fragment wykresu jest rysowany "od prawej", to chcemy to odwrócić
             if (xStart > xEnd)
                 (xStart, xEnd, yStart, yEnd) = (xEnd, xStart, yEnd, yStart);
 
@@ -43,7 +43,12 @@ public partial class MainWindowViewModel
                 values[xStartInt] = (yStart + yEnd) / 2;
             else
             {
-                
+                var steps = xEndInt - xStartInt;
+                for (int s = 0; s <= steps; s++)
+                {
+                    var t = (double)s / steps;
+                    values[xStartInt + s] = (1 - t) * yStart + t * yEnd;
+                }
             }
         }
         

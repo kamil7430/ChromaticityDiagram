@@ -18,16 +18,33 @@
     </Design.DataContext>
 
     <Grid ColumnDefinitions="*,*" RowDefinitions="100,*">
-        <StackPanel Grid.Column="0"
+        <Grid Grid.Column="0"
+              Grid.Row="0"
+              ColumnDefinitions="*,*"
+              VerticalAlignment="Center"
+              HorizontalAlignment="Center">
+            <StackPanel Grid.Column="0"
+                        Margin="0, 0, 30, 0">
+                <TextBlock Text="{Binding BezierCurveControlPoints.Count, StringFormat='Control points count: {0}'}"
+                           HorizontalAlignment="Center"/>
+                
+                <Button Content="Remove last control point"
+                        Command="{Binding RemoveLastControlPointCommand}"
+                        Margin="0, 10, 0, 0"
+                        HorizontalAlignment="Center"/>
+            </StackPanel>
+            
+            <CheckBox Grid.Column="1"
+                      Content="Paint area under the Bezier curve"
+                      IsChecked="{Binding ShouldPaintAreaUnderBezierCurve}"
+                      HorizontalAlignment="Center"/>
+        </Grid>
+        
+        <StackPanel Grid.Column="1"
                     Grid.Row="0"
                     VerticalAlignment="Center"
                     HorizontalAlignment="Center">
-            <TextBlock Text="{Binding BezierCurveControlPoints.Count, StringFormat='Control points count: {0}'}"
-                       HorizontalAlignment="Center"/>
             
-            <Button Content="Remove last control point"
-                    Command="{Binding RemoveLastControlPointCommand}"
-                    Margin="0, 10, 0, 0"/>
         </StackPanel>
         
         <scottPlot:AvaPlot Grid.Column="0" 

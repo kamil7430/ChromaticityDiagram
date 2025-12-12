@@ -1,4 +1,3 @@
-using System;
 using CommunityToolkit.Mvvm.Input;
 
 namespace ChromaticityDiagram.ViewModels;
@@ -12,7 +11,7 @@ public partial class MainWindowViewModel
     private void RemoveLastControlPoint()
     {
         BezierCurveControlPoints.RemoveAt(BezierCurveControlPoints.Count - 1);
-        BezierPlotChanged?.Invoke(this, EventArgs.Empty);
+        OnPropertyChanged();
     }
 
     private void NotifyCanExecute()

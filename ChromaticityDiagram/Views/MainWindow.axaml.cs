@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -22,10 +24,10 @@ public partial class MainWindow : Window
         DataContext = _viewModel = viewModel;
         _bezierPlot = InitializeBezierPlot();
         _chromaticityPlot = InitializeChromaticityDiagram();
-        _viewModel.BezierPlotChanged += ViewModel_OnBezierPlotChanged;
+        _viewModel.PropertyChanged += ViewModel_OnPropertyChanged;
     }
 
-    private void ViewModel_OnBezierPlotChanged(object? sender, EventArgs e)
+    private void ViewModel_OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
         => RenderPlots();
 
     private AvaPlot InitializeBezierPlot()
@@ -139,9 +141,11 @@ public partial class MainWindow : Window
     private void RenderPlots()
     {
         var (xs, ys) = _viewModel.GetBezierCurve();
+        var bezierValues = _viewModel.GetBezierValues(xs, ys);
         RenderBezierPlot(xs, ys);
-        UpdateColorPointOnChromaticityDiagram(xs, ys);
-        UpdateColorPreview(xs, ys);
+        PaintAreaUnderBezierCurve(bezierValues);
+        UpdateColorPointOnChromaticityDiagram(bezierValues);
+        UpdateColorPreview(bezierValues);
         
         _bezierPlot.Refresh();
         _chromaticityPlot.Refresh();
@@ -163,12 +167,21 @@ public partial class MainWindow : Window
         _bezierPlot.Plot.Add.ScatterLine(xs, ys, curveColor);
     }
 
-    private void UpdateColorPointOnChromaticityDiagram(double[] xs, double[] ys)
+    private void PaintAreaUnderBezierCurve(IDictionary<int, double> bezierValues)
+    {
+        if (!_viewModel.ShouldPaintAreaUnderBezierCurve)
+            return;
+
+        foreach (var (x, y) in bezierValues)
+            _bezierPlot.Plot.Add.Line(x, 0, x, y);
+    }
+    
+    private void UpdateColorPointOnChromaticityDiagram(IDictionary<int, double> bezierValues)
     {
         
     }
 
-    private void UpdateColorPreview(double[] xs, double[] ys)
+    private void UpdateColorPreview(IDictionary<int, double> bezierValues)
     {
         
     }
