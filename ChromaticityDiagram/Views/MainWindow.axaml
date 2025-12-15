@@ -12,7 +12,7 @@
         Icon="/Assets/avalonia-logo.ico"
         Title="CIE XYZ Chromaticity Diagram"
         Width="1200"
-        Height="700"
+        Height="720"
         CanResize="False">
 
     <Design.DataContext>
@@ -23,7 +23,7 @@
         <converters:EnumToBooleanConverter x:Key="EnumToBool" />
     </Window.Resources>
 
-    <Grid ColumnDefinitions="*,*" RowDefinitions="100,*">
+    <Grid ColumnDefinitions="*,*" RowDefinitions="120,*">
         <Grid Grid.Column="0"
               Grid.Row="0"
               ColumnDefinitions="*,*"
@@ -37,8 +37,18 @@
                 
                 <Button Content="Remove last control point"
                         Command="{Binding RemoveLastControlPointCommand}"
-                        Margin="0, 10, 0, 0"
+                        Margin="0, 10"
                         HorizontalAlignment="Center"/>
+                
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center">
+                    <Button Content="Save"
+                            Margin="0, 0, 15, 0"
+                            Command="{Binding SaveCurveCommand}"/>
+                    
+                    <Button Content="Load"
+                            Command="{Binding LoadCurveCommand}"/>
+                </StackPanel>
             </StackPanel>
             
             <StackPanel Grid.Column="1"

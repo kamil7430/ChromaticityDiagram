@@ -21,10 +21,10 @@ public partial class MainWindow : Window
     private readonly Marker _colorPointOnChromaticityDiagram;
     private int _draggedPointIndex = -1;
     
-    public MainWindow(MainWindowViewModel viewModel)
+    public MainWindow()
     {
         InitializeComponent();
-        DataContext = _viewModel = viewModel;
+        DataContext = _viewModel = new MainWindowViewModel(StorageProvider);
         _bezierPlot = InitializeBezierPlot();
         (_chromaticityPlot, _colorPointOnChromaticityDiagram) = InitializeChromaticityDiagram();
         _viewModel.PropertyChanged += ViewModel_OnPropertyChanged;

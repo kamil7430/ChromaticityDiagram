@@ -9,7 +9,8 @@ public partial class MainWindowViewModel
 {
     public ColorMatching ColorMatching { get; } = new();
 
-    public ObservableCollection<Coordinates> BezierCurveControlPoints { get; } = [];
+    [ObservableProperty]
+    private ObservableCollection<Coordinates> _bezierCurveControlPoints = [];
     
     public Image CIEXYZDiagramBackground { get; }
 
