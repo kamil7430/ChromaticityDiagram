@@ -152,11 +152,11 @@ public partial class MainWindow : Window
 
     private void RenderPlots()
     {
-        var (xs, ys) = _viewModel.GetBezierCurve();
-        var bezierValues = _viewModel.GetBezierValues(xs, ys);
+        var (xs, ys) = _viewModel.GetCurve();
+        var values = _viewModel.GetValues(xs, ys);
         RenderBezierPlot(xs, ys);
-        PaintAreaUnderBezierCurve(bezierValues);
-        UpdateColorPointOnChromaticityDiagram(bezierValues);
+        PaintAreaUnderCurve(values);
+        UpdateColorPointOnChromaticityDiagram(values);
         
         ColorPreviewPanel.InvalidateVisual();
         _bezierPlot.Refresh();
@@ -179,7 +179,7 @@ public partial class MainWindow : Window
         _bezierPlot.Plot.Add.ScatterLine(xs, ys, curveColor);
     }
 
-    private void PaintAreaUnderBezierCurve(IDictionary<int, double> bezierValues)
+    private void PaintAreaUnderCurve(IDictionary<int, double> bezierValues)
     {
         if (!_viewModel.ShouldPaintAreaUnderBezierCurve)
             return;

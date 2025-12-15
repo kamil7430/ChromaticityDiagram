@@ -15,4 +15,7 @@ public partial class MainWindowViewModel
 
     [ObservableProperty]
     private bool _shouldPaintAreaUnderBezierCurve;
+    
+    [ObservableProperty]
+    private CurveType _curveType = CurveType.BezierCurve;
 }

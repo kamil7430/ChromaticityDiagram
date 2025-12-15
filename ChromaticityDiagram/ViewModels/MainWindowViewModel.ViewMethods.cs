@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Avalonia;
 using Avalonia.Media;
+using ChromaticityDiagram.Models;
 using ChromaticityDiagram.Models.Algorithms;
 using ChromaticityDiagram.Models.Helpers;
 using ScottPlot;
@@ -13,6 +14,30 @@ namespace ChromaticityDiagram.ViewModels;
 
 public partial class MainWindowViewModel
 {
+    public (double[] xs, double[] ys) GetCurve()
+        => CurveType switch
+        {
+            CurveType.BezierCurve => GetBezierCurve(),
+            CurveType.Polyline => GetPolyline(),
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+    public (double[] xs, double[] ys) GetPolyline()
+    {
+        var pointsCount = BezierCurveControlPoints.Count;
+        var xs = new double[pointsCount];
+        var ys = new double[pointsCount];
+
+        for (int i = 0; i < pointsCount; i++)
+        {
+            var point = BezierCurveControlPoints[i];
+            xs[i] = point.X;
+            ys[i] = point.Y;
+        }
+
+        return (xs, ys);
+    }
+    
     public (double[] xs, double[] ys) GetBezierCurve()
         => DeCasteljau.GetBezierPoints(BezierCurveControlPoints.ToList());
 
@@ -23,7 +48,7 @@ public partial class MainWindowViewModel
             Color.FromARGB(vec.XYZToColorUint())
         )).Where(t => t.Item2 != Colors.Black);
 
-    public IDictionary<int, double> GetBezierValues(double[] xs, double[] ys)
+    public IDictionary<int, double> GetValues(double[] xs, double[] ys)
     {
         if (xs.Length != ys.Length)
             throw new ArgumentException("Arrays xs and ys must have the same length!");
